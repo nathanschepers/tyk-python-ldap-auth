@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import time
 
 from tyk.decorators import *
 from gateway import TykGateway as tyk
@@ -16,7 +17,7 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
 
     Please review the tutorial here:
 
-        https://tyk.io/docs/customise-tyk/plugins/rich-plugins/python/custom-auth-python-tutorial/
+        https://tyk.io/docs/customise-tyk/plugins/rich-plugins/python/custom-auth-python-tutorial/?origin_team=T0ATUMNSJ
 
     This middleware expects an 'Authorization' header in the request object. The header will have the format:
 
@@ -92,4 +93,10 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
     to_hash = user_dn + ":" + password
     metadata['token'] = hashlib.md5(to_hash.encode()).hexdigest()
     tyk.log("Authorized user: " + username, "info")
+
+    # Update expiry time for id extractor (24 hours from now)
+    # Note that this needs some clarification from @matias right now.
+    expiry_time = time.time() + (24 * 60 * 60)
+    session.id_extractor_deadline = expiry_time
+
     return request, session, metadata
