@@ -97,3 +97,7 @@ python-coprocess
     - sudo pip3 install python-ldap
   - docs for python-ldap
     - https://www.python-ldap.org/en/python-ldap-3.2.0/reference/ldap.html
+  - use the ./test-ldap.py script to verify that authentication works.
+- set up the custom middleware (link to middleware tutorial, highlight docstring)
+- set up the id extractor
+  - https://tyk.io/docs/customise-tyk/plugins/rich-plugins/id-extractor/

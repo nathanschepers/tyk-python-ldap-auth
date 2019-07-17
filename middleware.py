@@ -1,5 +1,5 @@
 import base64
-import md5
+import hashlib
 
 from tyk.decorators import *
 from gateway import TykGateway as tyk
@@ -11,13 +11,50 @@ ldap_server = "172.17.0.2"
 
 @Hook
 def LDAPAuthMiddleware(request, session, metadata, spec):
+    """
+    Function to handle Authentication via LDAP.
+
+    Please review the tutorial here:
+
+        https://tyk.io/docs/customise-tyk/plugins/rich-plugins/python/custom-auth-python-tutorial/?origin_team=T0ATUMNSJ
+
+    This middleware expects an 'Authorization' header in the request object. The header will have the format:
+
+        'Basic AUTH_STRING'
+
+    Where AUTH_STRING is a base64 encoded string of the format:
+
+        'username:password'
+
+    For this example, the username is expected to have a distinguished name of:
+
+        "cn=" + username + ",dc=example,dc=org"
+
+    Note that the ldap_server variable is set to the ip address of the LDAP server.
+"""
+
     auth_header = request.get_header('Authorization')
-    
+    if not auth_header:
+        # Log the error
+        error_text = "No Auth header"
+        tyk.log_error(error_text)
+        # Set the return_overrides object to the appropriate error
+        request.object.return_overrides.response_code = 400
+        request.object.return_overrides.response_error = error_text
+        return request, session, metadata
+
+
+    tyk.log_error(auth_header) 
+	 
     field, sep, value = auth_header.partition("Basic ")
 
     if not value:
-        tyk.log_error("Incorrect auth header (no value)")
-        # here we use return overrides
+        # Log the error
+        error_text = "Incorrect auth header (no value)"
+        tyk.log_error(error_text)
+        # Set the return_overrides object to the appropriate error
+        request.object.return_overrides.response_code = 400
+        request.object.return_overrides.response_error = error_text
         return request, session, metadata
 
     # note the weirdness with bytes vs. strings because we're in python3
@@ -26,8 +63,12 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
     username, password = decoded_value.split(":")
 
     if not (username and password):
-        tyk.log_error("Incorrect auth header (no username, pw)")
-        # here we use return overrides
+        # Log the error
+        error_text = "Incorrect auth header (no username, password)"
+        tyk.log_error(error_text)
+        # Set the return_overrides object to the appropriate error
+        request.object.return_overrides.response_code = 400
+        request.object.return_overrides.response_error = error_text
         return request, session, metadata
 
     user_dn = "cn=" + username + ",dc=example,dc=org"
@@ -37,13 +78,18 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
         ldap_object = ldap.initialize("ldap://" + ldap_server)
         ldap_object.bind_s(user_dn, password)
     except ldap.LDAPError as e:
-        tyk.log_error("Could not authenticate against LDAP " + username)
+        # Log the error
+        error_text = "Could not authenticate against LDAP with user " + username
+        tyk.log_error(error_text)
         tyk.log_error(str(e))
-        # here we use return overrides
+        # Set the return_overrides object to the appropriate error
+        request.object.return_overrides.response_code = 500
+        request.object.return_overrides.response_error = error_text + ". -- " + str(e)
         return request, session, metadata
 
     # Setting metadata['token'] indicates to Tyk that the authorization was a success. In this case we are setting it
     # to the md5sum of the user_dn and the password.
-    metadata['token'] = md5.new(user_dn + " " + password).hexdigest()
-    tyk.log_info("Authorized user: " + username)
+    to_hash = user_dn + ":" + password
+    metadata['token'] = hashlib.md5(to_hash.encode()).hexdigest()
+    tyk.log("Authorized user: " + username, "info")
     return request, session, metadata
