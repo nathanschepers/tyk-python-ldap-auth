@@ -1,5 +1,3 @@
-Blog entry for Tyk custom auth middleware (python)
-
 Tyk - Authorization with LDAP (a tutorial)
 =====
 
