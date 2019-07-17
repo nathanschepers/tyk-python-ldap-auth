@@ -112,3 +112,9 @@ should be restarted. This will cause the bundle.zip to be loaded.
 Once this is done, requests can be made to the API and will be authenticated appropriately.
 
 See docstrings and comments in `middleware*.py` for more details.
+
+Sample Configurations
+-----
+
+The `./tyk-config` directory provides sample `tyk.conf` and `api.conf` files. The `api.conf` is a Tyk raw API definition. 
+You will need to update them to reflect your configuration.
