@@ -1,4 +1,5 @@
 import base64
+import md5
 
 from tyk.decorators import *
 from gateway import TykGateway as tyk
@@ -41,6 +42,8 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
         # here we use return overrides
         return request, session, metadata
 
+    # Setting metadata['token'] indicates to Tyk that the authorization was a success. In this case we are setting it
+    # to the md5sum of the user_dn and the password.
+    metadata['token'] = md5.new(user_dn + " " + password).hexdigest()
     tyk.log_info("Authorized user: " + username)
-    # here we need to set the token
     return request, session, metadata
