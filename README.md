@@ -43,7 +43,7 @@ Once the containers are running, you will want to set up a test user for authori
  - Create a new posix group
  - Create a new user, adding them to the group and specifying a password
 
-There is an ordered list of images in the `blog_entry/pics` directory that demonstrate
+There is an ordered list of images in the `./pics` directory that demonstrate
 this process.
 
 Custom Middleware
