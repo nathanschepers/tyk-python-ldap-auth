@@ -71,11 +71,10 @@ It can be used in the case that we want to benefit from Tyk's [ID Extractor](htt
 This version of the middleware sets a cache expiry time of 24hrs in the future for every
 successfully authorized request.
 
-If you wish to use this middleware, you will need to edit `manifest.json` to select the
+If you wish to use this middleware, you will need to edit `manifest-id-extractor.json` to select the
 correct file to bundle.
 
-You will also need to update the API definition's `custom_middleware` section to use 
-the ID Extractor, as follows:
+This manifest sets up the ID Extractor as follows:
 
 ```json
    "custom_middleware": {
@@ -103,8 +102,11 @@ Using the Custom Middlewares
 -----
 
 [This tutorial](https://tyk.io/docs/customise-tyk/plugins/rich-plugins/python/custom-auth-python-tutorial/)
-provides basic instructions for setting up a custom Python middleware. Note that `manifest.json` in
+provides basic instructions for setting up a custom Python middleware. Note that `manifest-id-extractor.json` or
+ `manifest-no-id-extractor.json` in
 this directory should be used as it supplies the correct function name for the python middleware.
+
+To select the appropriate manifest file at bundle build time use `tyk bundle build -m {MANIFEST FILENAME}`.
 
 Once Tyk and the API are configured and the bundles are being served, the Tyk gateway
 should be restarted. This will cause the bundle.zip to be loaded.

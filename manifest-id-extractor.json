@@ -1,0 +1,18 @@
+{
+  "file_list": [
+    "middleware-id-extractor.py"
+  ],
+  "custom_middleware": {
+    "driver": "python",
+    "auth_check": {
+      "name": "LDAPAuthMiddleware"
+    },
+    "id_extractor": {
+      "extract_from": "header",
+      "extract_with": "value",
+      "extractor_config": {
+        "header_name": "Authorization"
+      }
+    }
+  }
+}
