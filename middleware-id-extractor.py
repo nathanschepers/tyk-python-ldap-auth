@@ -96,7 +96,7 @@ def LDAPAuthMiddleware(request, session, metadata, spec):
 
     # Update expiry time for id extractor (24 hours from now)
     # Note that this needs some clarification from @matias right now.
-    expiry_time = time.time() + (24 * 60 * 60)
+    expiry_time = int(time.time()) + (24 * 60 * 60)
     session.id_extractor_deadline = expiry_time
 
     return request, session, metadata
